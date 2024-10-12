@@ -13,6 +13,13 @@ session_regenerate_id(true);
 <body>
   <h1>サンプルPHPインデックスページへようこそ</h1>
 
+  <?php if (isset($_SESSION['user_id'])): ?>
+    <a href="mypage.php">マイページ</a>
+  <?php else: ?>
+    <a href="sign_up.php">新規登録</a>
+    <a href="sign_in.php">ログイン</a>
+  <?php endif; ?>
+
   <?php
   $now = new DateTime();
   echo "<p>現在の日時: " . $now->format('Y-m-d H:i:s') . "</p>";
