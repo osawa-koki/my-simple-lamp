@@ -2,6 +2,9 @@
 require_once 'src/pdo.php';
 require_once 'src/validate.php';
 
+session_start();
+session_regenerate_id(true);
+
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -9,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $encrypted_password = hash('sha3-256', $password);
 
-    $errors = validate_sign_in($id, $password);
+    $errors = validate_user_params($id, 'dummy-name', 'dummy-email@example.com', '1990-01-01', 'dummy-comment', $password);
 
     if (empty($errors)) {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE id = :id AND password = :password");
