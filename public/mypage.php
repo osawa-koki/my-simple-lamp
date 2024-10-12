@@ -107,11 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['_method'] === 'patch') {
             </tr>
             <tr>
                 <td colspan="2">
-                    <a href="todos.php">タスク一覧</a>はこちら。
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
                     <script>
                         function signOut() {
                             if (confirm('サインアウトしますか？')) {
