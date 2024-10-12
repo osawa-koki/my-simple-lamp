@@ -2,6 +2,9 @@
 require_once 'src/pdo.php';
 require_once 'src/validate.php';
 
+session_start();
+session_regenerate_id(true);
+
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $encrypted_password = hash('sha3-256', $password);
 
-    $errors = validate_sign_up($id, $name, $email, $birthday, $comment, $password);
+    $errors = validate_user_params($id, $name, $email, $birthday, $comment, $password);
 
     if (empty($errors)) {
         try {
@@ -33,6 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':comment', $comment, PDO::PARAM_STR);
                 $stmt->bindParam(':password', $encrypted_password, PDO::PARAM_STR);
                 $stmt->execute();
+
+                session_start();
+                $_SESSION['user_id'] = $id;
 
                 header('Location: mypage.php');
                 exit;
