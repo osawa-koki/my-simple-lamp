@@ -38,4 +38,30 @@ function validate_sign_up($id, $name, $email, $birthday, $comment, $password) {
     return $errors;
 }
 
+function validate_sign_in($id, $password) {
+    $errors = [];
+
+    if (empty($id)) {
+        $errors['id'] = $errors['id'] ?? 'IDは必須です。';
+    }
+    if (strlen($id) < 8) {
+        $errors['id'] = $errors['id'] ?? 'IDは8文字以上である必要があります。';
+    }
+    if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $id)) {
+        $errors['id'] = $errors['id'] ?? 'IDは英数字、アンダースコア、ハイフンのみ使用可能です。';
+    }
+
+    if (empty($password)) {
+        $errors['password'] = $errors['password'] ?? 'パスワードは必須です。';
+    }
+    if (strlen($password) < 8) {
+        $errors['password'] = $errors['password'] ?? 'パスワードは8文字以上である必要があります。';
+    }
+
+    if (!empty($errors)) {
+        $errors['sign_up'] = '入力内容に不備があります。';
+    }
+
+    return $errors;
+}
 ?>

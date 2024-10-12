@@ -16,17 +16,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = validate_sign_up($id, $name, $email, $birthday, $comment, $password);
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("INSERT INTO users (id, name, email, birthday, comment, password) VALUES (:id, :name, :email, :birthday, :comment, :password)");
-        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
-        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->bindParam(':birthday', $birthday, PDO::PARAM_STR);
-        $stmt->bindParam(':comment', $comment, PDO::PARAM_STR);
-        $stmt->bindParam(':password', $encrypted_password, PDO::PARAM_STR);
-        $stmt->execute();
+        try {
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE id = :id OR email = :email");
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
 
-        header('Location: mypage.php');
-        exit;
+            if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $errors['duplicate'] = 'このユーザーIDまたはメールアドレスは既に使用されています。';
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO users (id, name, email, birthday, comment, password) VALUES (:id, :name, :email, :birthday, :comment, :password)");
+                $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $stmt->bindParam(':birthday', $birthday, PDO::PARAM_STR);
+                $stmt->bindParam(':comment', $comment, PDO::PARAM_STR);
+                $stmt->bindParam(':password', $encrypted_password, PDO::PARAM_STR);
+                $stmt->execute();
+
+                header('Location: mypage.php');
+                exit;
+            }
+        } catch (PDOException $e) {
+            $errors['db'] = 'データベースエラーが発生しました。';
+        }
     }
 }
 ?>
@@ -40,9 +53,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h1>サインアップ</h1>
-    <?php if (!empty($errors)): ?>
-        <p style="color: red;">入力内容に不備があります。</p>
+    <?php if (isset($errors['sign_up'])): ?>
+        <p style="color: red;"><?php echo htmlspecialchars($errors['sign_up']); ?></p>
     <?php endif; ?>
+    <?php if (isset($errors['db'])): ?>
+        <p style="color: red;"><?php echo htmlspecialchars($errors['db']); ?></p>
+    <?php endif; ?>
+    <?php if (isset($errors['duplicate'])): ?>
+        <p style="color: red;"><?php echo htmlspecialchars($errors['duplicate']); ?></p>
+    <?php endif; ?>
+    <a href="sign_in.php">サインイン</a>はこちら。
+    <hr />
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
         <table>
             <tr>
